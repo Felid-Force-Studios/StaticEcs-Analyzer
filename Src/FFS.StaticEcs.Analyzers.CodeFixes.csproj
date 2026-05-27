@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <LangVersion>latest</LangVersion>
+        <Nullable>disable</Nullable>
+        <RootNamespace>FFS.Libraries.StaticEcs.Analyzers.CodeFixes</RootNamespace>
+        <AssemblyName>FFS.StaticEcs.Analyzers.CodeFixes</AssemblyName>
+        <IsRoslynComponent>true</IsRoslynComponent>
+        <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+        <IncludeBuildOutput>false</IncludeBuildOutput>
+        <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+        <DevelopmentDependency>true</DevelopmentDependency>
+        <NoPackageAnalysis>true</NoPackageAnalysis>
+        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+        <NoWarn>$(NoWarn);RS2002</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.3.1" PrivateAssets="all" />
+        <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4" PrivateAssets="all" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- Only CodeFixes\** and Shared\** belong to this assembly. Analyzer rule files and
+             top-level helpers (Diagnostics.cs, StaticEcsSymbols.cs, ...) live in the analyzer DLL. -->
+        <Compile Remove="Analyzers\**\*.cs" />
+        <Compile Remove="Diagnostics.cs" />
+        <Compile Remove="OperationHelpers.cs" />
+        <Compile Remove="StaticEcsCompilationScope.cs" />
+        <Compile Remove="StaticEcsSymbols.cs" />
+    </ItemGroup>
+
+</Project>

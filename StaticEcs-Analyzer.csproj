@@ -1,0 +1,66 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <LangVersion>latest</LangVersion>
+        <Nullable>disable</Nullable>
+        <IncludeBuildOutput>false</IncludeBuildOutput>
+        <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+        <DevelopmentDependency>true</DevelopmentDependency>
+        <NoPackageAnalysis>true</NoPackageAnalysis>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageId>FFS.StaticEcs.Analyzers</PackageId>
+        <AssemblyName>FFS.StaticEcs.Analyzers.Package</AssemblyName>
+        <Version>1.0.0</Version>
+        <Authors>Felid-Force-Studios</Authors>
+        <Description>Roslyn analyzers and code fixes for FFS.StaticEcs — compile-time checks for ECS misuse, ref-return safety, query filter contradictions, and more.</Description>
+        <Copyright>Felid-Force-Studios</Copyright>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageTags>ecs; analyzer; roslyn; codefix; staticecs</PackageTags>
+        <RepositoryUrl>https://github.com/Felid-Force-Studios/StaticEcs-Analyzer</RepositoryUrl>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <!-- README in the NuGet package. -->
+        <None Include="README.md" Pack="true" PackagePath=""/>
+        <None Include="README_RU.md" Pack="true" PackagePath=""/>
+        <None Include="README_ZH.md" Pack="true" PackagePath=""/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- Nothing in this packing project should be compiled — only Src/ contains real code. -->
+        <Compile Remove="**/*.cs"/>
+        <None Remove="**/*.meta"/>
+        <None Remove="Analyzers/**"/>
+        <Content Remove="Analyzers/**"/>
+    </ItemGroup>
+
+    <!-- Build internal analyzer + codefix csprojs first. -->
+    <Target Name="BuildAnalyzers" BeforeTargets="Build;Pack"
+            Condition="!Exists('Src\bin\Release\netstandard2.0\FFS.StaticEcs.Analyzers.dll') Or !Exists('Src\bin\Release\netstandard2.0\FFS.StaticEcs.Analyzers.CodeFixes.dll')">
+        <Exec Command="dotnet build &quot;$(MSBuildProjectDirectory)\Src\FFS.StaticEcs.Analyzers.csproj&quot; -c Release --nologo -v quiet"/>
+        <Exec Command="dotnet build &quot;$(MSBuildProjectDirectory)\Src\FFS.StaticEcs.Analyzers.CodeFixes.csproj&quot; -c Release --nologo -v quiet"/>
+    </Target>
+
+    <!-- Pack the built DLLs into analyzers/dotnet/cs (NuGet analyzer convention). -->
+    <ItemGroup>
+        <None Include="Src\bin\Release\netstandard2.0\FFS.StaticEcs.Analyzers.dll"
+              Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false"/>
+        <None Include="Src\bin\Release\netstandard2.0\FFS.StaticEcs.Analyzers.CodeFixes.dll"
+              Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false"/>
+    </ItemGroup>
+
+    <!-- Copy fresh DLLs to the UPM plug-in folder so Unity consumers using a git URL pick them up. -->
+    <Target Name="CopyAnalyzerToUpm" AfterTargets="Build">
+        <ItemGroup>
+            <_AnalyzerDllsForUpm Include="Src\bin\Release\netstandard2.0\FFS.StaticEcs.Analyzers.dll"/>
+            <_AnalyzerDllsForUpm Include="Src\bin\Release\netstandard2.0\FFS.StaticEcs.Analyzers.CodeFixes.dll"/>
+        </ItemGroup>
+        <Copy SourceFiles="@(_AnalyzerDllsForUpm)"
+              DestinationFolder="$(MSBuildProjectDirectory)\Analyzers"
+              SkipUnchangedFiles="true"
+              Condition="Exists('%(_AnalyzerDllsForUpm.Identity)')"/>
+    </Target>
+
+</Project>
