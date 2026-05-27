@@ -11,7 +11,7 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageId>FFS.StaticEcs.Analyzers</PackageId>
         <AssemblyName>FFS.StaticEcs.Analyzers.Package</AssemblyName>
-        <Version>1.0.0</Version>
+        <Version>1.0.1</Version>
         <Authors>Felid-Force-Studios</Authors>
         <Description>Roslyn analyzers and code fixes for FFS.StaticEcs — compile-time checks for ECS misuse, ref-return safety, query filter contradictions, and more.</Description>
         <Copyright>Felid-Force-Studios</Copyright>
@@ -29,33 +29,38 @@
     </ItemGroup>
 
     <ItemGroup>
-        <!-- Nothing in this packing project should be compiled — only Src/ contains real code. -->
+        <!-- Nothing in this packing project should be compiled — only Src~/ contains real code,
+             and the tilde-suffixed folder is ignored by Unity (so Unity won't try to compile
+             Roslyn-only sources). -->
         <Compile Remove="**/*.cs"/>
+        <Compile Remove="Src~/**"/>
         <None Remove="**/*.meta"/>
+        <None Remove="Src~/**"/>
         <None Remove="Analyzers/**"/>
+        <Content Remove="Src~/**"/>
         <Content Remove="Analyzers/**"/>
     </ItemGroup>
 
     <!-- Build internal analyzer + codefix csprojs first. -->
     <Target Name="BuildAnalyzers" BeforeTargets="Build;Pack"
-            Condition="!Exists('Src\bin\Release\netstandard2.0\FFS.StaticEcs.Analyzers.dll') Or !Exists('Src\bin\Release\netstandard2.0\FFS.StaticEcs.Analyzers.CodeFixes.dll')">
-        <Exec Command="dotnet build &quot;$(MSBuildProjectDirectory)\Src\FFS.StaticEcs.Analyzers.csproj&quot; -c Release --nologo -v quiet"/>
-        <Exec Command="dotnet build &quot;$(MSBuildProjectDirectory)\Src\FFS.StaticEcs.Analyzers.CodeFixes.csproj&quot; -c Release --nologo -v quiet"/>
+            Condition="!Exists('Src~\bin\Release\netstandard2.0\FFS.StaticEcs.Analyzers.dll') Or !Exists('Src~\bin\Release\netstandard2.0\FFS.StaticEcs.Analyzers.CodeFixes.dll')">
+        <Exec Command="dotnet build &quot;$(MSBuildProjectDirectory)\Src~\FFS.StaticEcs.Analyzers.csproj&quot; -c Release --nologo -v quiet"/>
+        <Exec Command="dotnet build &quot;$(MSBuildProjectDirectory)\Src~\FFS.StaticEcs.Analyzers.CodeFixes.csproj&quot; -c Release --nologo -v quiet"/>
     </Target>
 
     <!-- Pack the built DLLs into analyzers/dotnet/cs (NuGet analyzer convention). -->
     <ItemGroup>
-        <None Include="Src\bin\Release\netstandard2.0\FFS.StaticEcs.Analyzers.dll"
+        <None Include="Src~\bin\Release\netstandard2.0\FFS.StaticEcs.Analyzers.dll"
               Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false"/>
-        <None Include="Src\bin\Release\netstandard2.0\FFS.StaticEcs.Analyzers.CodeFixes.dll"
+        <None Include="Src~\bin\Release\netstandard2.0\FFS.StaticEcs.Analyzers.CodeFixes.dll"
               Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false"/>
     </ItemGroup>
 
     <!-- Copy fresh DLLs to the UPM plug-in folder so Unity consumers using a git URL pick them up. -->
     <Target Name="CopyAnalyzerToUpm" AfterTargets="Build">
         <ItemGroup>
-            <_AnalyzerDllsForUpm Include="Src\bin\Release\netstandard2.0\FFS.StaticEcs.Analyzers.dll"/>
-            <_AnalyzerDllsForUpm Include="Src\bin\Release\netstandard2.0\FFS.StaticEcs.Analyzers.CodeFixes.dll"/>
+            <_AnalyzerDllsForUpm Include="Src~\bin\Release\netstandard2.0\FFS.StaticEcs.Analyzers.dll"/>
+            <_AnalyzerDllsForUpm Include="Src~\bin\Release\netstandard2.0\FFS.StaticEcs.Analyzers.CodeFixes.dll"/>
         </ItemGroup>
         <Copy SourceFiles="@(_AnalyzerDllsForUpm)"
               DestinationFolder="$(MSBuildProjectDirectory)\Analyzers"

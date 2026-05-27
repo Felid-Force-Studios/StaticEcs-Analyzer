@@ -3,7 +3,7 @@
   <a href="./README_RU.md"><img src="https://img.shields.io/badge/RU-Русский-blue?style=flat-square" alt="Русский"></a>
   <a href="./README_ZH.md"><img src="https://img.shields.io/badge/ZH-中文-blue?style=flat-square" alt="中文"></a>
   <br><br>
-  <img src="https://img.shields.io/badge/version-1.0.0-blue?style=for-the-badge" alt="Version">
+  <img src="https://img.shields.io/badge/version-1.0.1-blue?style=for-the-badge" alt="Version">
   <a href="https://www.nuget.org/packages/FFS.StaticEcs.Analyzers/"><img src="https://img.shields.io/badge/NuGet-FFS.StaticEcs.Analyzers-004880?style=for-the-badge&logo=nuget" alt="NuGet"></a>
   <a href="https://github.com/Felid-Force-Studios/StaticEcs"><img src="https://img.shields.io/badge/StaticEcs-framework-orange?style=for-the-badge" alt="StaticEcs"></a>
 </p>
